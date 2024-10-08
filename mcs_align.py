@@ -1,5 +1,4 @@
 #!/home/enord/local/miniconda3/envs/silcsprotac/bin/python
-# Erik Nordquist, enord@outerbanks.umaryland.edu
 
 from rdkit import Chem
 from rdkit.Chem import AllChem, SDWriter, rdFMCS
@@ -25,7 +24,8 @@ writer = SDWriter(output_filename)
 
 def protonate_constrained_embed(mol, ref):
   molH = Chem.AddHs(mol)
-  AllChem.UFFOptimizeMolecule(molH)
+  AllChem.MMFFSanitizeMolecule(molH)#, mmffVariant='MMFF94')
+  AllChem.MMFFOptimizeMolecule(molH, mmffVariant='MMFF94')#, maxIters=1000, nonBondedThresh=50.0)
   return AllChem.ConstrainedEmbed(molH, ref)
 
 def mcs_align(mcsmol, reflig, refmatch):
