@@ -13,8 +13,8 @@ parser.add_argument('-o', '--output', default='output.sdf', help='output filenam
 args = parser.parse_args()
 
 # Load the molecules from input files
-warhead = Chem.MolFromMolFile(args.warhead, removeHs=True)         # removing Hs required for performance in certain cases
-ref_ligands = Chem.SDMolSupplier(args.ref_ligands, removeHs=False) # leaving Hs required to minimize potentially confusing error
+warhead = Chem.MolFromMolFile(args.warhead, sanitize=True, removeHs=True)         # removing Hs required for performance in certain cases
+ref_ligands = Chem.SDMolSupplier(args.ref_ligands, sanitize=True, removeHs=False) # leaving Hs required to minimize potentially confusing error
 
 warhead_basename = os.path.basename(args.warhead[:-4])
 reflig_basename  = os.path.basename(args.ref_ligands)

@@ -1,7 +1,7 @@
 #!/home/enord/local/miniconda3/envs/silcsprotac/bin/python
 
 from rdkit import Chem
-from rdkit.Chem import AllChem, SDWriter, rdFMCS
+from rdkit.Chem import AllChem, rdFMCS
 import argparse
 import os
 
