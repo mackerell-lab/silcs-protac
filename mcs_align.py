@@ -14,8 +14,10 @@ parser.add_argument('-o', '--output', default='output.sdf', help='output filenam
 args = parser.parse_args()
 
 # Load the molecules from input files
-warhead = Chem.MolFromMolFile(args.warhead)
-ref_ligands = Chem.SDMolSupplier(args.ref_ligands)
+warhead = Chem.MolFromMolFile(args.warhead, removeHs=True, sanitize=True)
+ref_ligands = Chem.SDMolSupplier(args.ref_ligands, removeHs=True, sanitize=True)
+Chem.SanitizeMol(warhead, sanitizeOps=Chem.SanitizeFlags.SANITIZE_SETAROMATICITY)
+
 
 warhead_basename = os.path.basename(args.warhead[:-4])
 reflig_basename  = os.path.basename(args.ref_ligands)
@@ -43,6 +45,7 @@ def mcs_align(mcsmol, reflig, refmatch):
   
 for i, reflig in enumerate(ref_ligands):
   if reflig is None: continue
+  Chem.SanitizeMol(reflig, sanitizeOps=Chem.SanitizeFlags.SANITIZE_SETAROMATICITY)
   # Check for MCS matches and extract/write the fragments
   mcs = rdFMCS.FindMCS([warhead, reflig])
   mcs_mol = Chem.MolFromSmarts(mcs.smartsString)
@@ -51,14 +54,16 @@ for i, reflig in enumerate(ref_ligands):
     
   try:
     if ref_match and war_match:
-      embed_ref = mcs_align(mcs_mol, reflig, ref_match)
-      rms_mcs = AllChem.AlignMol(embed_ref, reflig, atomMap=list(zip(war_match, ref_match)))
+      embed_ref = mcs_align(mcs_mol, reflig, ref_match) # has the warhead structure, but gets reference coords
+      # these two lines below:
+      mcs_rms = AllChem.CalcRMS(embed_ref, reflig)#, map=list(zip(war_match, ref_match)))
+
       if args.protonate: warhead = protonate_constrained_embed(warhead, embed_ref)
       else: warhead = embed_ref
-      mcs_frac = len(war_match)/reflig.GetNumHeavyAtoms()
-      warhead.SetProp('MCS_RMSD', '%.2f' % rms_mcs)
-      warhead.SetProp('MCS_FRAC', '%.2f' % mcs_frac)
-      print('RMSD = %.2f, frac. atoms in MCS = %.2f'%(rms_mcs, mcs_frac))
+      mcs_frac = len(war_match)/warhead.GetNumHeavyAtoms()
+      warhead.SetProp('MCS_RMSD_to_reference', '%.2f' % mcs_rms)
+      warhead.SetProp('MCS_FRAC_to_reference', '%.2f' % mcs_frac)
+      print('RMSD = %.2f, frac. atoms in MCS = %.2f'%(mcs_rms, mcs_frac))
 
     else:
       print('No valid MCS matches found in either molecule for entry %d.'%i)
@@ -66,7 +71,7 @@ for i, reflig in enumerate(ref_ligands):
     print('Something went wrong with constrained embedding, performing RMSD rigid alignment')
     rms = AllChem.AlignMol(warhead, reflig, atomMap=list(zip(war_match, ref_match)))
     if args.protonate: warhead = protonate_constrained_embed(warhead, warhead)
-    warhead.SetProp('RMSD', '%.02f'%rms)
+    warhead.SetProp('RIGID_RMSD_to_reference', '%.02f'%rms)
 
   warhead.SetProp('Entry', str(i))
   warhead.SetProp('_Name', reflig.GetProp('_Name'))
@@ -75,3 +80,4 @@ for i, reflig in enumerate(ref_ligands):
   print('Warhead ligand aligned to protac entry %d and written to %s'%(i,output_filename))
      
 writer.close()
+if args.protonate: print('WARNING: protonate mode results in worse embeddings and unstable results, proceed with extra caution!')
