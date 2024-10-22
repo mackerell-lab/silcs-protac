@@ -43,18 +43,20 @@ for i, reflig in enumerate(ref_ligands):
   mcs_mol = Chem.MolFromSmarts(mcs.smartsString)
   ref_match = reflig.GetSubstructMatch(mcs_mol)
   war_match = warhead.GetSubstructMatch(mcs_mol)
+  mcs_frac = len(war_match)/warhead.GetNumHeavyAtoms()
     
   try:
     if ref_match and war_match:
       embed_ref = mcs_align(mcs_mol, reflig, ref_match) # has the warhead structure, but gets reference coords
       # these two lines below:
-      mcs_rms = AllChem.CalcRMS(embed_ref, reflig)#, map=list(zip(war_match, ref_match)))
+      mcs_embed_rms = AllChem.CalcRMS(embed_ref, reflig)
+      rmsd_warhead = AllChem.CalcRMS(embed_ref, warhead)#, map=list(zip(ref_match, war_match)))
 
       warhead = embed_ref
-      mcs_frac = len(war_match)/warhead.GetNumHeavyAtoms()
-      warhead.SetProp('MCS_EMBED_RMSD_expect_~0.0', '%.2f' % mcs_rms)
+      warhead.SetProp('MCS_RMSD_to_warhead', '%.2f' % rmsd_warhead)
+      warhead.SetProp('MCS_EMBED_RMSD_expect_~0.0', '%.2f' % mcs_embed_rms)
       warhead.SetProp('MCS_FRAC_expect_~1.0', '%.2f' % mcs_frac)
-      print('MCS_EMBED_RMSD = %.2f, MCS_FRAC = %.2f'%(mcs_rms, mcs_frac))
+      print('MCS_RMSD_to_Warhead = %.2f MCS_EMBED_RMSD = %.2f MCS_FRAC = %.2f'%(rmsd_warhead,mcs_embed_rms, mcs_frac))
 
     else:
       print('No valid MCS matches found in either molecule for entry %d.'%i)
