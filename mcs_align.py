@@ -68,6 +68,6 @@ for i, reflig in enumerate(ref_ligands):
   warhead_save.SetProp('Entry', str(i))
   warhead_save.SetProp('_Name', reflig.GetProp('_Name'))
   warhead_save.SetProp('Warhead name', warhead.GetProp('_Name'))
-  writer.write(warhead)
+  writer.write(warhead_save)
      
 writer.close()
