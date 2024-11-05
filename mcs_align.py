@@ -56,7 +56,7 @@ for i, reflig in enumerate(ref_ligands):
       warhead_save.SetProp('MCS_RMSD_to_warhead', '%.2f' % rmsd_warhead)
       warhead_save.SetProp('MCS_EMBED_RMSD_expect_~0.0', '%.2f' % mcs_embed_rms)
       warhead_save.SetProp('MCS_FRAC_expect_~1.0', '%.2f' % mcs_frac)
-      print('MCS_RMSD_to_Warhead = %.2f MCS_EMBED_RMSD = %.2f MCS_FRAC = %.2f'%(rmsd_warhead,mcs_embed_rms, mcs_frac))
+      print('MCS_RMSD_to_Warhead = %.2f MCS_FRAC = %.2f'%(rmsd_warhead, mcs_frac))
 
     else:
       print('No valid MCS matches found in either molecule for entry %d.'%i)
