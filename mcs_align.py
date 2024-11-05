@@ -52,10 +52,10 @@ for i, reflig in enumerate(ref_ligands):
       mcs_embed_rms = AllChem.CalcRMS(embed_ref, reflig)
       rmsd_warhead = AllChem.CalcRMS(embed_ref, warhead)#, map=list(zip(ref_match, war_match)))
 
-      warhead = embed_ref
-      warhead.SetProp('MCS_RMSD_to_warhead', '%.2f' % rmsd_warhead)
-      warhead.SetProp('MCS_EMBED_RMSD_expect_~0.0', '%.2f' % mcs_embed_rms)
-      warhead.SetProp('MCS_FRAC_expect_~1.0', '%.2f' % mcs_frac)
+      warhead_save = embed_ref
+      warhead_save.SetProp('MCS_RMSD_to_warhead', '%.2f' % rmsd_warhead)
+      warhead_save.SetProp('MCS_EMBED_RMSD_expect_~0.0', '%.2f' % mcs_embed_rms)
+      warhead_save.SetProp('MCS_FRAC_expect_~1.0', '%.2f' % mcs_frac)
       print('MCS_RMSD_to_Warhead = %.2f MCS_EMBED_RMSD = %.2f MCS_FRAC = %.2f'%(rmsd_warhead,mcs_embed_rms, mcs_frac))
 
     else:
@@ -63,11 +63,11 @@ for i, reflig in enumerate(ref_ligands):
   except ValueError:
     print('Something went wrong with constrained embedding, performing RMSD rigid alignment')
     rms = AllChem.AlignMol(warhead, reflig, atomMap=list(zip(war_match, ref_match)))
-    warhead.SetProp('RIGID_RMSD_to_reference', '%.02f'%rms)
+    warhead_save.SetProp('RIGID_RMSD_to_reference', '%.02f'%rms)
 
-  warhead.SetProp('Entry', str(i))
-  warhead.SetProp('_Name', reflig.GetProp('_Name'))
-  warhead.SetProp('Warhead name', warhead.GetProp('_Name'))
+  warhead_save.SetProp('Entry', str(i))
+  warhead_save.SetProp('_Name', reflig.GetProp('_Name'))
+  warhead_save.SetProp('Warhead name', warhead.GetProp('_Name'))
   writer.write(warhead)
      
 writer.close()
