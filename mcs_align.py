@@ -9,7 +9,7 @@ import os
 parser = argparse.ArgumentParser(prog='mcs_align.py', description='This script performs Maximum Common Substructure Alignment of warhead to ref_ligands, using the MCS to assign the coordinates of ref_ligands to warhead, and falling back on RMSD rigid alignment if MCS Alignment fails.')
 parser.add_argument('-w', '--warhead', required=True, help='Warhead or fragment common among ref_ligands, single ligand in sdf/mol format')
 parser.add_argument('-r', '--ref_ligands',  required=True, help='Ref coordinates for alignment containing warhead, can be multiple ligands in sdf format')
-parser.add_argument('-o', '--output', default='output.sdf', help='output filename; default = output.sdf')
+parser.add_argument('-o', '--output', default='output.sdf', help='output filename; default = %(default)s')
 args = parser.parse_args()
 
 # Load the molecules from input files
